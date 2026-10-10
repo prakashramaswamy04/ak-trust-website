@@ -9,6 +9,15 @@ export interface AppState {
   members: MemberRecord[];
   donations: ExternalDonation[];
   disbursements: Disbursement[];
+  auditLog?: AuditEntry[];
+}
+
+export interface AuditEntry {
+  id: string;
+  at: string;
+  admin: string;
+  action: string;
+  details: string;
 }
 
 export const SEED_MEMBERS = [
@@ -32,7 +41,10 @@ function seedState(): AppState {
       payments: [],
     })),
     donations: [],
-    disbursements: [],
+    disbursements: [
+      {id: "seed-disb-737", recipientName: "Thozhamai Illam", amount: 31000, disbursementDate: "2025-10-06", purpose: "Donation – Receipt No. 737", paymentMethod: "Cash", receiptUrl: "/proof/receipt-2025.png", reversed: false},
+      {id: "seed-disb-1163", recipientName: "Thozhamai Illam", amount: 56500, disbursementDate: "2026-10-05", purpose: "Donation – Receipt No. 1163", paymentMethod: "Cash", receiptUrl: "/proof/receipt-2026.png", reversed: false},
+    ],
   };
 }
 
@@ -77,9 +89,12 @@ export async function saveState(state: AppState): Promise<void> {
   await fs.writeFile(FILE, JSON.stringify(state, null, 2));
 }
 
-export async function mutate(fn: (state: AppState) => void): Promise<void> {
+export async function mutate(fn: (state: AppState) => string | void, audit?: { admin: string; action: string }): Promise<void> {
   const state = await getState();
-  fn(state);
+  const details = fn(state);
+  if (audit) {
+    state.auditLog = [{ id: newId(), at: new Date().toISOString(), admin: audit.admin, action: audit.action, details: details ?? "" }, ...(state.auditLog ?? [])].slice(0, 500);
+  }
   await saveState(state);
 }
 

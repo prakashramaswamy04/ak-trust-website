@@ -3,15 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const items = [
-  { label: "Overview", href: "/" },
-  { label: "Members", href: "/members" },
-  { label: "Donors", href: "/donors" },
-  { label: "Disbursements", href: "/disbursements" },
-  { label: "Admin", href: "/admin" },
-];
-
-export function NavLinks() {
+export function NavLinks({ labels }: { labels: [string, string, string, string, string] }) {
+  const hrefs = ["/", "/members", "/donors", "/disbursements", "/admin"];
+  const items = labels.map((label, i) => ({ label, href: hrefs[i] }));
   const pathname = usePathname();
   return (
     <nav className="flex items-center gap-1 overflow-x-auto text-sm font-medium">

@@ -17,8 +17,8 @@ const statusStyles: Record<PaymentStatus, string> = {
   Pending: "bg-slate-100 text-slate-600",
 };
 
-export function StatusBadge({ status }: { status: PaymentStatus }) {
-  return <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[status]}`}>{status}</span>;
+export function StatusBadge({ status, label }: { status: PaymentStatus; label?: string }) {
+  return <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[status]}`}>{label ?? status}</span>;
 }
 
 export function PageHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {

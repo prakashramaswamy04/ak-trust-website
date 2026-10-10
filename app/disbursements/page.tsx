@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/finance";
+import { getT } from "@/lib/i18n";
 import { getState } from "@/lib/store";
 
 
@@ -13,15 +14,16 @@ const PROOFS = [
 export const dynamic = "force-dynamic";
 
 export default async function DisbursementsPage() {
+  const { t } = await getT();
   const state = await getState();
   const list = state.disbursements.filter((d) => !d.reversed).sort((a, b) => b.disbursementDate.localeCompare(a.disbursementDate));
   const total = list.reduce((t, d) => t + d.amount, 0);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 md:px-6 lg:px-8">
-      <PageHeader eyebrow="Disbursements" title="Where the funds went" subtitle="Every donation made to beneficiaries and organizations." />
+      <PageHeader eyebrow={t.disbursements} title={t.whereTheFundsWent} subtitle="Every donation made to beneficiaries and organizations." />
       <div className="card-surface mb-6 flex items-center justify-between p-5">
-        <span className="metric-label">Total donated</span>
+        <span className="metric-label">{t.totalDonated}</span>
         <span className="text-2xl font-bold text-emerald-950">{formatCurrency(total)}</span>
       </div>
       <div className="card-surface overflow-hidden">
@@ -34,14 +36,21 @@ export default async function DisbursementsPage() {
                   <div className="text-sm text-slate-600">{d.purpose}</div>
                   <div className="text-xs text-slate-400">{formatDate(d.disbursementDate)}</div>
                 </div>
-                <div className="font-bold text-amber-700">{formatCurrency(d.amount)}</div>
+                <div className="flex items-center gap-4">
+                  {d.receiptUrl ? (
+                    <a href={d.receiptUrl} target="_blank" rel="noreferrer" title={t.viewReceipt} className="relative block h-14 w-14 shrink-0 overflow-hidden rounded-lg ring-1 ring-slate-200 transition hover:ring-emerald-600">
+                      <Image src={d.receiptUrl} alt={t.viewReceipt} fill sizes="56px" className="object-cover object-top" unoptimized={d.receiptUrl.startsWith("http")} />
+                    </a>
+                  ) : null}
+                  <div className="font-bold text-amber-700">{formatCurrency(d.amount)}</div>
+                </div>
               </li>
             ))}
           </ul>
         )}
       </div>
       <section className="mt-10">
-        <h2 className="mb-4 text-xl font-bold text-emerald-950">Proof of donation</h2>
+        <h2 className="mb-4 text-xl font-bold text-emerald-950">{t.proof}</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {PROOFS.map((p) => (
             <a key={p.src} href={p.src} target="_blank" rel="noreferrer" className="card-surface block overflow-hidden transition hover:shadow-lg">

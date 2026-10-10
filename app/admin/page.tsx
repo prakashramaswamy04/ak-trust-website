@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { Lock, LogOut, Trash2, Undo2 } from "lucide-react";
 import { logoutAction, deleteMemberAction, reverseEntryAction } from "@/app/actions";
-import { AddDisbursementForm, AddDonationForm, AddMemberForm, AddPaymentForm, LoginForm } from "@/components/admin-forms";
+import { AddDisbursementForm, AddDonationForm, AddMemberForm, AddPaymentForm, EditMemberForm, EditPaymentForm, LoginForm } from "@/components/admin-forms";
 import { PageHeader } from "@/components/ui";
-import { isAdmin, usingDefaultPassword } from "@/lib/auth";
+import { currentAdmin } from "@/lib/auth";
 import { formatCurrency, formatDate } from "@/lib/finance";
 import { getState, usingSupabase } from "@/lib/store";
 
@@ -28,7 +29,8 @@ function ReverseButton({ kind, id }: { kind: string; id: string }) {
 }
 
 export default async function AdminPage() {
-  if (!(await isAdmin())) {
+  const adminName = await currentAdmin();
+  if (!adminName) {
     return (
       <main className="mx-auto max-w-md px-4 py-20">
         <div className="card-surface p-8">
@@ -36,7 +38,6 @@ export default async function AdminPage() {
           <h1 className="text-center text-2xl font-bold text-emerald-950">Admin sign in</h1>
           <p className="mb-6 mt-1 text-center text-sm text-slate-500">Only trust admins can add or remove members and record payments.</p>
           <LoginForm />
-          {usingDefaultPassword() ? <p className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-900">Demo password: <b>akadmin123</b>. Set <code>ADMIN_PASSWORD</code> in .env.local before going live.</p> : null}
         </div>
       </main>
     );
@@ -51,7 +52,7 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-8">
       <div className="flex items-start justify-between gap-4">
-        <PageHeader eyebrow="Admin" title="Manage the trust" subtitle={`Data stored in ${usingSupabase() ? "Supabase" : "a local file (demo mode — add Supabase keys to go live)"}.`} />
+        <PageHeader eyebrow="Admin" title={`Welcome, ${adminName}`} subtitle={`Data stored in ${usingSupabase() ? "Supabase" : "a local file (demo mode — add Supabase keys to go live)"}.`} />
         <form action={logoutAction}><button className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"><LogOut className="h-4 w-4" />Sign out</button></form>
       </div>
 
@@ -67,11 +68,14 @@ export default async function AdminPage() {
           <ul className="mt-4 max-h-96 divide-y divide-slate-100 overflow-y-auto">
             {state.members.map((m) => (
               <li key={m.id} className="flex items-center justify-between py-2 text-sm">
-                <span>{m.name}</span>
+                <Link href={`/members/${m.id}`} className="hover:underline">{m.name}</Link>
+                <div className="flex items-center gap-1">
+                <EditMemberForm id={m.id} name={m.name} />
                 <form action={deleteMemberAction}>
                   <input type="hidden" name="id" value={m.id} />
                   <button title="Delete member" className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                 </form>
+                </div>
               </li>
             ))}
           </ul>
@@ -82,13 +86,13 @@ export default async function AdminPage() {
             {payments.length === 0 ? <p className="text-sm text-slate-500">No payments yet.</p> : (
               <ul className="divide-y divide-slate-100 text-sm">
                 {payments.map((p) => (
-                  <li key={p.id} className="flex items-center justify-between py-2.5">
+                  <li key={p.id} className="relative flex items-center justify-between py-2.5">
                     <div className={p.reversed ? "text-slate-400 line-through" : ""}>
                       <span className="font-medium">{p.memberName}</span> <span className="text-slate-500">· {formatDate(p.date)} · {p.reference}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`font-semibold ${p.reversed ? "text-slate-400 line-through" : "text-emerald-800"}`}>{formatCurrency(p.amount)}</span>
-                      {p.reversed ? null : <ReverseButton kind="payment" id={p.id} />}
+                      {p.reversed ? null : <><EditPaymentForm id={p.id} amount={p.amount} date={p.date} reference={p.reference} /><ReverseButton kind="payment" id={p.id} /></>}
                     </div>
                   </li>
                 ))}
@@ -121,6 +125,18 @@ export default async function AdminPage() {
               )}
             </Panel>
           </div>
+          <Panel title="Audit log">
+            {(state.auditLog ?? []).length === 0 ? <p className="text-sm text-slate-500">No admin activity recorded yet.</p> : (
+              <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto text-sm">
+                {(state.auditLog ?? []).slice(0, 50).map((a) => (
+                  <li key={a.id} className="py-2">
+                    <span className="font-medium">{a.action}</span> <span className="text-slate-600">· {a.details}</span>
+                    <div className="text-xs text-slate-400">{a.admin} · {new Date(a.at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         </div>
       </div>
     </main>

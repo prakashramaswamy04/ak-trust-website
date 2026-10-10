@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { addDisbursementAction, addDonationAction, addMemberAction, addPaymentAction, loginAction, type ActionResult } from "@/app/actions";
+import { editMemberAction, editPaymentAction, addDisbursementAction, addDonationAction, addMemberAction, addPaymentAction, loginAction, type ActionResult } from "@/app/actions";
 
 type Action = (prev: ActionResult | null, form: FormData) => Promise<ActionResult>;
 
@@ -25,7 +25,8 @@ const today = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0,
 export function LoginForm() {
   return (
     <Form action={loginAction} submit="Sign in">
-      <input className="input" type="password" name="password" placeholder="Admin password" required autoFocus />
+      <input className="input" name="username" placeholder="Username" autoComplete="username" required autoFocus />
+      <input className="input" type="password" name="password" placeholder="Password" required />
     </Form>
   );
 }
@@ -78,6 +79,39 @@ export function AddDisbursementForm() {
         <input className="input" type="date" name="date" defaultValue={today()} max={today()} required />
       </div>
       <input className="input" name="paymentMethod" placeholder="Method (UPI / Cash / Bank)" defaultValue="UPI" required />
+      <input className="input" name="receiptUrl" placeholder="Receipt link (optional, https://… or /proof/…)" />
     </Form>
+  );
+}
+
+export function EditMemberForm({ id, name }: { id: string; name: string }) {
+  return (
+    <details className="group">
+      <summary className="cursor-pointer list-none rounded-lg p-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-50">Edit</summary>
+      <div className="mt-2 w-60 rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
+        <Form action={editMemberAction} submit="Save">
+          <input type="hidden" name="id" value={id} />
+          <input className="input" name="name" defaultValue={name} required />
+        </Form>
+      </div>
+    </details>
+  );
+}
+
+export function EditPaymentForm({ id, amount, date, reference }: { id: string; amount: number; date: string; reference: string }) {
+  return (
+    <details>
+      <summary className="cursor-pointer list-none rounded-lg p-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-50">Edit</summary>
+      <div className="absolute right-4 z-10 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
+        <Form action={editPaymentAction} submit="Save">
+          <input type="hidden" name="id" value={id} />
+          <div className="grid grid-cols-2 gap-2">
+            <input className="input" type="number" name="amount" min={1} defaultValue={amount} required />
+            <input className="input" type="date" name="date" defaultValue={date} max={today()} required />
+          </div>
+          <input className="input" name="reference" defaultValue={reference} placeholder="Reference" />
+        </Form>
+      </div>
+    </details>
   );
 }

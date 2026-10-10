@@ -14,8 +14,7 @@ export function buildOverview(state: AppState) {
   };
 }
 
-export function memberRows(members: MemberRecord[]) {
-  const month = currentMonthKey();
+export function memberRows(members: MemberRecord[], month: string = currentMonthKey()) {
   return members.map((m) => {
     const active = m.payments.filter((p) => !p.reversed);
     const paidThisMonth = active.filter((p) => p.date.startsWith(month)).reduce((t, p) => t + p.amount, 0);
@@ -64,4 +63,29 @@ export function monthlySeries(state: AppState, fy: number) {
   for (const m of state.members) for (const p of m.payments) if (!p.reversed) { const o = find(p.date); if (o) o.members += p.amount; }
   for (const d of state.donations) if (!d.reversed) { const o = find(d.donationDate); if (o) o.donors += d.amount; }
   return out;
+}
+
+export const FIRST_MONTH = "2026-10";
+
+// Months from Oct 2026 up to the current month, newest first.
+export function monthOptions(): string[] {
+  const out: string[] = [];
+  let [y, m] = FIRST_MONTH.split("-").map(Number);
+  const now = currentMonthKey();
+  for (;;) {
+    const key = `${y}-${String(m).padStart(2, "0")}`;
+    if (key > now) break;
+    out.push(key);
+    if (++m > 12) { m = 1; y++; }
+  }
+  return out.length ? out.reverse() : [FIRST_MONTH];
+}
+
+export function parseMonth(value: string | undefined): string {
+  const opts = monthOptions();
+  return value && opts.includes(value) ? value : opts[0];
+}
+
+export function monthLabel(key: string): string {
+  return new Date(key + "-01").toLocaleString("en-IN", { month: "long", year: "numeric" });
 }

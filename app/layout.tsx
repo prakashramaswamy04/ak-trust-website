@@ -1,3 +1,4 @@
+import { getLang } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { Geist, Noto_Sans_Tamil } from "next/font/google";
 import { SiteShell } from "@/components/site-shell";
@@ -18,9 +19,10 @@ export const metadata: Metadata = {
   description: "Transparent donation tracking for AK Trust and charitable giving.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const lang = await getLang();
   return (
-    <html lang="en" className={`${geistSans.variable} ${notoTamil.variable} h-full antialiased`}>
+    <html lang={lang} className={`${geistSans.variable} ${notoTamil.variable} h-full antialiased`}>
       <body className="min-h-full bg-stone-50 text-slate-900">
         <SiteShell>{children}</SiteShell>
       </body>
