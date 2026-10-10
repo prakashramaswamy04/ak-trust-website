@@ -43,3 +43,35 @@ a {
 .metric-label {
   @apply text-xs font-semibold uppercase tracking-[0.16em] text-slate-500;
 }
+
+/* Dark theme: remaps the light utility colours used across the app */
+html.dark {
+  color-scheme: dark;
+  --background: #0b1512;
+  --foreground: #e6efe9;
+}
+html.dark body { background: radial-gradient(900px 400px at 85% -5%, rgba(198,159,93,.08), transparent 60%), radial-gradient(900px 500px at -10% 0%, rgba(45,106,82,.15), transparent 60%), var(--background); }
+html.dark .bg-stone-50 { background-color: #0b1512; }
+html.dark .bg-white { background-color: #12211c; }
+html.dark .bg-white\/80 { background-color: rgba(11, 21, 18, 0.8); }
+html.dark .bg-slate-50, html.dark .bg-slate-100 { background-color: #1a2d26; }
+html.dark .bg-emerald-50, html.dark .bg-emerald-50\/60, html.dark .bg-emerald-50\/40 { background-color: rgba(52, 211, 153, 0.08); }
+html.dark .bg-emerald-100 { background-color: rgba(52, 211, 153, 0.16); }
+html.dark .bg-amber-50 { background-color: rgba(251, 191, 36, 0.1); }
+html.dark .bg-amber-100 { background-color: rgba(251, 191, 36, 0.18); }
+html.dark .bg-red-50 { background-color: rgba(248, 113, 113, 0.12); }
+html.dark .text-slate-900, html.dark .text-slate-700, html.dark .text-emerald-950, html.dark .text-emerald-900 { color: #e6efe9; }
+html.dark .text-slate-600, html.dark .text-slate-500 { color: #9db3a8; }
+html.dark .text-slate-400 { color: #7b948a; }
+html.dark .text-emerald-800, html.dark .text-emerald-700 { color: #6ee7b7; }
+html.dark .text-amber-700, html.dark .text-amber-800, html.dark .text-amber-900 { color: #fbbf24; }
+html.dark .text-red-600 { color: #f87171; }
+html.dark .border-slate-200, html.dark .border-slate-100, html.dark .divide-slate-100 > :not(:last-child) { border-color: rgba(255, 255, 255, 0.09); }
+html.dark .border-emerald-200, html.dark .border-emerald-900\/10, html.dark .border-emerald-900\/20 { border-color: rgba(255, 255, 255, 0.1); }
+html.dark .ring-slate-200, html.dark .ring-emerald-900\/10 { --tw-ring-color: rgba(255, 255, 255, 0.1); }
+html.dark .card-surface { background: #12211c; border-color: rgba(255, 255, 255, 0.08); box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.5); }
+html.dark .input { background: #0e1b17; border-color: rgba(255, 255, 255, 0.14); color: #e6efe9; }
+html.dark .metric-label { color: #9db3a8; }
+html.dark .btn { background: #059669; color: #fff; }
+html.dark .btn:hover { background: #10b981; }
+html.dark img[src*="logo"] { background: transparent; }

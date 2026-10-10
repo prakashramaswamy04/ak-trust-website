@@ -1,4 +1,5 @@
 import { getLang } from "@/lib/i18n";
+import Script from "next/script";
 import type { Metadata } from "next";
 import { Geist, Noto_Sans_Tamil } from "next/font/google";
 import { SiteShell } from "@/components/site-shell";
@@ -22,8 +23,9 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const lang = await getLang();
   return (
-    <html lang={lang} className={`${geistSans.variable} ${notoTamil.variable} h-full antialiased`}>
+    <html lang={lang} suppressHydrationWarning className={`${geistSans.variable} ${notoTamil.variable} h-full antialiased`}>
       <body className="min-h-full bg-stone-50 text-slate-900">
+        <Script id="theme-init" strategy="beforeInteractive">{`try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`}</Script>
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

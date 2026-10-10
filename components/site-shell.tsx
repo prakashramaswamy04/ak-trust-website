@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 import Link from "next/link";
 import { NavLinks } from "@/components/nav-links";
@@ -21,6 +22,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <NavLinks labels={[t.overview, t.members, t.donors, t.disbursements, t.admin]} />
             <LangToggle current={lang} label={t.lang} />
+            <ThemeToggle />
           </div>
         </div>
       </header>
