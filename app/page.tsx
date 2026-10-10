@@ -1,69 +1,111 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, HandHeart, Users, Wallet } from "lucide-react";
+import { InflowChart } from "@/components/charts";
+import { StatCard } from "@/components/ui";
+import { TRUST_CONFIG, formatCurrency } from "@/lib/finance";
+import { FySelect } from "@/components/fy-select";
+import { buildOverview, memberRows, monthlySeries, fyOptions, parseFY } from "@/lib/overview";
+import { getState } from "@/lib/store";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ fy?: string }> }) {
+  const state = await getState();
+  const o = buildOverview(state);
+  const rows = memberRows(state.members);
+  const paidCount = rows.filter((r) => r.status === "Paid").length;
+  const monthCollected = rows.reduce((t, r) => t + r.paidThisMonth, 0);
+  const pct = o.monthlyTarget ? Math.min(100, Math.round((monthCollected / o.monthlyTarget) * 100)) : 0;
+  const fy = parseFY((await searchParams).fy);
+  const series = monthlySeries(state, fy);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-amber-400/10 blur-3xl" />
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:px-6 md:py-20 lg:grid-cols-[1.2fr_0.8fr] lg:px-8">
+          <div>
+            <div className="inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-sm ring-1 ring-white/15">
+              <Image src="/ak-trust-logo.png" alt="AK Trust logo" width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
+              Founded 05 Oct 2024
+            </div>
+            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+              Small contributions.<br /><span className="text-amber-300">A bigger impact.</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-emerald-100/90">
+              {state.members.length} friends giving {formatCurrency(TRUST_CONFIG.monthlyMemberContribution)} a month to support orphaned children — every rupee tracked in the open.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/members" className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 font-semibold text-emerald-950 transition hover:bg-amber-300">
+                See member status <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/disbursements" className="rounded-xl bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/20 transition hover:bg-white/20">Where funds went</Link>
+            </div>
+          </div>
+          <div className="rounded-3xl bg-white/10 p-6 ring-1 ring-white/15 backdrop-blur">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">Available balance</div>
+            <div className="mt-2 text-5xl font-bold tracking-tight">{formatCurrency(o.availableBalance)}</div>
+            <p className="mt-2 text-sm text-emerald-200/80">Opening {formatCurrency(o.openingBalance)} (as of 10 Oct 2026) + inflows − disbursements</p>
+            <div className="mt-6">
+              <div className="flex justify-between text-sm">
+                <span>This month</span>
+                <span className="font-semibold">{formatCurrency(monthCollected)} / {formatCurrency(o.monthlyTarget)}</span>
+              </div>
+              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/15">
+                <div className="h-full rounded-full bg-amber-400 transition-all" style={{ width: `${pct}%` }} />
+              </div>
+              <p className="mt-2 text-xs text-emerald-200/80">{paidCount} of {o.totalMembers} members paid in full · {pct}%</p>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 md:px-6 lg:px-8">
+        <div className="-mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Total collected" value={formatCurrency(o.totalCollected)} hint="Opening + members + donors" />
+          <StatCard label="Member contributions" value={formatCurrency(o.memberContributions)} hint="Since tracking began" />
+          <StatCard label="Donor funding" value={formatCurrency(o.externalDonations)} hint={`${o.recordedExternalDonors} named donors`} accent="gold" />
+          <StatCard label="Funds donated" value={formatCurrency(o.disbursements)} hint="Given to beneficiaries" accent="gold" />
         </div>
-      </main>
-    </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <section className="card-surface p-6 lg:col-span-2">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-emerald-950">Monthly inflow</h2>
+                <p className="text-sm text-slate-500">Oct {fy - 1} – Sep {fy} · members and donors</p>
+              </div>
+              <div className="flex flex-col items-end gap-2 text-xs text-slate-600">
+                <FySelect value={fy} options={fyOptions()} />
+                <div className="flex gap-4">
+                <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-emerald-800" />Members</span>
+                <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-amber-500" />Donors</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4"><InflowChart data={series} /></div>
+          </section>
+
+          <section className="card-surface p-6">
+            <h2 className="text-xl font-bold text-emerald-950">At a glance</h2>
+            <ul className="mt-5 space-y-4">
+              {[
+                { icon: Users, label: "Members", value: String(o.totalMembers) },
+                { icon: HandHeart, label: "Monthly target", value: formatCurrency(o.monthlyTarget) },
+                { icon: Wallet, label: "Per member / month", value: formatCurrency(TRUST_CONFIG.monthlyMemberContribution) },
+              ].map(({ icon: Icon, label, value }) => (
+                <li key={label} className="flex items-center gap-4">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800"><Icon className="h-5 w-5" /></span>
+                  <div className="flex-1 text-sm text-slate-500">{label}</div>
+                  <div className="font-bold text-slate-900">{value}</div>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">The opening balance is a historical total reported by the trust and is counted once.</p>
+          </section>
+        </div>
+      </div>
+    </main>
   );
 }
