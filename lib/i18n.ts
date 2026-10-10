@@ -8,6 +8,7 @@ const en = {
   tagline: "Small contributions · Bigger impact",
   footer: "Supporting orphaned children through small, consistent contributions — with every rupee tracked openly.",
   founded: "Founded 05 Oct 2024",
+  address: "Sivalingapuram, Alangulam, Tenkasi, Tamil Nadu",
   heroA: "Small contributions.", heroB: "A bigger impact.",
   seeStatus: "See member status", whereFunds: "Where funds went",
   availableBalance: "Available balance", thisMonth: "This month", paidFull: "members paid in full",
@@ -23,6 +24,7 @@ const en = {
 
 const ta: typeof en = {
   overview: "முகப்பு", members: "உறுப்பினர்கள்", donors: "நன்கொடையாளர்கள்", disbursements: "வழங்கல்கள்", admin: "நிர்வாகி",
+  address: "சிவலிங்கபுரம், ஆலங்குளம், தென்காசி, தமிழ்நாடு",
   tagline: "சிறு பங்களிப்பு · பெரிய தாக்கம்",
   footer: "சிறு, தொடர்ச்சியான பங்களிப்புகளால் ஆதரவற்ற குழந்தைகளுக்கு உதவுகிறோம் — ஒவ்வொரு ரூபாயும் வெளிப்படையாக.",
   founded: "தொடக்கம் 05 அக் 2024",

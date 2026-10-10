@@ -15,6 +15,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             <div className="leading-tight">
               <div className="text-lg font-bold tracking-tight text-emerald-950">AK Trust</div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700">{t.tagline}</div>
+              <div className="text-[10px] text-slate-500">{t.address}</div>
             </div>
           </Link>
           <div className="flex items-center gap-2">
@@ -31,6 +32,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             <div>
               <div className="font-semibold">AK Trust</div>
               <p className="max-w-md text-sm text-emerald-200/80">{t.footer}</p>
+              <p className="mt-2 text-sm font-medium text-amber-300">📍 {t.address}</p>
             </div>
           </div>
           <div className="text-xs uppercase tracking-[0.2em] text-emerald-300/70">Founded 05 Oct 2024 · ₹ INR</div>
